@@ -1,0 +1,239 @@
+<!DOCTYPE html> 
+<html lang="de">
+<head>
+
+<meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+   <title>4 Gewinnt</title>
+ 
+
+    <h1>4 Gewinnt Browser Spiel</h1>
+
+
+    
+    <p id="currentPlayer"></p>
+    
+    
+
+    
+    <style>
+
+
+    p {
+        font-size: 20px;
+    }
+
+
+       body {
+           display: flex;
+           flex-direction: column;
+           align-items: center; 
+           justify-content: center; 
+           min-height: 100vh; 
+           margin: 0;
+           font-family: Arial, sans-serif; 
+           background-color: #e3e3e3f2;
+           
+       }
+
+        /* Grid-Container */
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(7, 60px);
+        grid-template-rows: repeat(6, 60px);
+        gap: 5px; /* Abstand zwischen den Elementen */
+        padding: 10px;
+        background-color: #2b73f7;
+           
+    }
+
+     /* Grid-Elemente */
+    .grid-item {
+        background-color: #0b3197;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        font-size: 1.2em;
+        border-radius: 50%;
+    }
+
+         </style>
+       </head>
+       <body>
+
+
+    <!--Erstellt Grids mit 7 Spalten und 6 Reihen-->
+    <div class="grid-container">
+
+        
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+        <div class="grid-item"></div>
+
+    </div>
+
+<script>
+
+const matrix = [[1, 2, 3, 4, 5, 6, 7],
+                [8, 9, 10, 11, 12, 13, 14],
+                [15, 16, 17, 18, 19, 20, 21],
+                [22, 23, 24, 25, 26, 27, 28],
+                [29, 30, 31, 32, 33, 34, 35],
+                [36, 37, 38, 39, 40, 41, 42]];
+
+
+for(let row of matrix){
+    const rowString = row.join(" ");
+    console.log(rowString);
+}
+
+let currentPlayer = 1;
+
+let gameOver = false;
+
+const playerColor = { 
+    1: "red",
+    2: "yellow"
+};
+
+const fields = document.querySelectorAll(".grid-item");
+
+fields.forEach((field, index) => { 
+    field.dataset.col = index % 7;
+});
+
+const playerText = document.getElementById("currentPlayer");
+
+function updatePlayerText() {
+    playerText.textContent =
+            "Jetzt ist " + (currentPlayer === 1 ? "Rot" : "Gelb") + " dran";
+}
+updatePlayerText();
+
+fields.forEach(field => {
+    field.addEventListener("click", () => {
+
+        if (gameOver) return;
+
+        const col = Number(field.dataset.col);
+
+        // von unten nach oben prüfen
+        for (let row = 5; row >= 0; row--) {
+
+            const index = row * 7 + col;
+            const targetField = fields[index];
+
+            // prüfen ob Feld leer ist
+            if (
+                targetField.style.backgroundColor === "" ||
+                targetField.style.backgroundColor === "rgb(11, 49, 151)"
+            ) {
+                const color = playerColor[currentPlayer];
+targetField.style.backgroundColor = color;
+
+if (checkWin(row, col, color)) {
+    alert((currentPlayer === 1 ? "Rot" : "Gelb") + " hat gewonnen! 🎉");
+    gameOver = true;
+    playerText.textContent = "Spiel beendet, seite Refreshen zum Neustarten";
+    return;
+}
+
+
+// Spieler wechseln
+currentPlayer = currentPlayer === 1 ? 2 : 1;
+updatePlayerText();
+
+// Schleife beenden
+break;
+
+            }
+        }
+    });
+});
+
+function getColor(row, col) {
+    if (row < 0 || row > 5 || col < 0 || col > 6) return null;
+    const index = row * 7 + col;
+    return fields[index].style.backgroundColor;
+}
+
+function checkWin(row, col, color) {
+
+    const directions = [
+        { r: 0, c: 1 },   // horizontal
+        { r: 1, c: 0 },   // vertikal
+        { r: 1, c: 1 },   // diagonal rechts unten
+        { r: 1, c: -1 }   // diagonal links unten
+    ];
+
+    for (let dir of directions) {
+        let count = 1;
+
+        // vorwärts prüfen
+        for (let i = 1; i < 4; i++) {
+            if (getColor(row + dir.r * i, col + dir.c * i) === color) {
+                count++;
+            } else break;
+        }
+
+        // rückwärts prüfen
+        for (let i = 1; i < 4; i++) {
+            if (getColor(row - dir.r * i, col - dir.c * i) === color) {
+                count++;
+            } else break;
+        }
+
+        if (count >= 4) return true;
+    }
+
+    return false;
+}
+
+
+</script>
+</body>
+</html>
